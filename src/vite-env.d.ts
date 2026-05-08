@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_SOLANA_RPC_URL: string;
   readonly VITE_SOLANA_NETWORK: string;
+  readonly VITE_VOPAY_PROGRAM_ID: string;
 }
 
 interface ImportMeta {

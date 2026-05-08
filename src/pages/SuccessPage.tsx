@@ -3,18 +3,22 @@ import {
   CheckCircle2, 
   ExternalLink, 
   Copy, 
-  ArrowRight, 
   LayoutDashboard, 
   Plus,
   Volume2,
   Share2,
   FileText
 } from 'lucide-react';
-import { GlassCard } from '../components/GlassCard';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTransactionStore, useUserStore } from '../context/store';
 import { useEffect, useState } from 'react';
 import { cn } from '../lib/utils';
+
+type SuccessRouteState = {
+  signature?: string;
+  metadataSignature?: string | null;
+  explorerUrl?: string;
+};
 
 export default function SuccessPage() {
   const navigate = useNavigate();
@@ -22,10 +26,16 @@ export default function SuccessPage() {
   const { currentAnalysis, setAnalysis } = useTransactionStore();
   const { displayName } = useUserStore();
   const [copied, setCopied] = useState(false);
+  const routeState = location.state as SuccessRouteState | null;
   
   // Get transaction signature from navigation state
-  const txSignature = location.state?.signature || "4p9Q7xKXv3p9Ab2xL0p4Ax4p9zT1Ab2xL0p4Ax4p9";
+  const txSignature = routeState?.signature || "4p9Q7xKXv3p9Ab2xL0p4Ax4p9zT1Ab2xL0p4Ax4p9";
+  const metadataSignature = routeState?.metadataSignature || null;
+  const explorerUrl = routeState?.explorerUrl || `https://explorer.solana.com/tx/${txSignature}?cluster=devnet`;
   const shortHash = `${txSignature.slice(0, 12)}...${txSignature.slice(-12)}`;
+  const shortMetadataHash = metadataSignature
+    ? `${metadataSignature.slice(0, 12)}...${metadataSignature.slice(-12)}`
+    : null;
 
   useEffect(() => {
     // Voice confirmation placeholder
@@ -88,7 +98,7 @@ export default function SuccessPage() {
                     <FileText size={20} className="text-solana-green" />
                     Transaction Receipt
                   </h3>
-                  <p className="text-[10px] font-mono text-muted uppercase tracking-widest font-black mt-1 opacity-50">Solana Mainnet-Beta</p>
+                  <p className="text-[10px] font-mono text-muted uppercase tracking-widest font-black mt-1 opacity-50">Solana Devnet</p>
                </div>
                <div className="bg-solana-green/10 text-solana-green px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-solana-green/20">
                   Settled
@@ -131,7 +141,7 @@ export default function SuccessPage() {
                         <Copy size={16} />
                      </button>
                      <a 
-                       href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`} 
+                       href={explorerUrl}
                        target="_blank" 
                        rel="noopener noreferrer"
                        className="p-2.5 bg-foreground/5 border border-border rounded-xl transition-all text-muted hover:text-foreground hover:bg-foreground/10"
@@ -141,6 +151,13 @@ export default function SuccessPage() {
                   </div>
                </div>
             </div>
+
+            {shortMetadataHash && (
+              <div className="flex items-center justify-between px-5 py-4 bg-solana-purple/5 rounded-2xl border border-solana-purple/20">
+                <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">VoPay Audit Log</span>
+                <span className="text-[11px] font-mono font-black text-solana-purple truncate ml-4">{shortMetadataHash}</span>
+              </div>
+            )}
           </div>
         </motion.div>
 

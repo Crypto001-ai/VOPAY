@@ -6,14 +6,11 @@ import {
   User, 
   Plus, 
   Search, 
-  CheckCircle2, 
   AlertCircle, 
-  Trash2, 
   Copy, 
   ChevronRight,
   Info
 } from 'lucide-react';
-import { GlassCard } from '../components/GlassCard';
 import { useUserStore, useTransactionStore } from '../context/store';
 import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -26,10 +23,14 @@ interface Contact {
 }
 
 const SAVED_CONTACTS: Contact[] = [
-  { id: '1', name: 'Victor', address: '7xKX...v3p9' },
-  { id: '2', name: 'Opera Axe', address: '4p9Q...9zT1' },
-  { id: '3', name: 'Clinton', address: 'Ab2x...L0p4' },
+  { id: '1', name: 'Victor', address: 'AjXoNY1XayDw4AA7p55HpzAybYJdDXH2jLFB1AiWcEmw' },
+  { id: '2', name: 'Opera Axe', address: '9f4xzTgAqF77r7sqJKmKResnZkerCmJnLh4s4mLbyEwk' },
+  { id: '3', name: 'Clinton', address: 'GAYwgDwCQofBm6g3qcEhQjpJZpbtprZPiUxcCnvXMxXe' },
 ];
+
+function shortenAddress(address: string) {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
 
 export default function TransactionAssistantPage() {
   const { isConnected } = useUserStore();
@@ -356,7 +357,7 @@ export default function TransactionAssistantPage() {
                         </div>
                         <div>
                           <p className="font-black text-sm tracking-tight italic">{contact.name}</p>
-                          <p className="text-[10px] font-mono font-black opacity-50">{contact.address}</p>
+                          <p className="text-[10px] font-mono font-black opacity-50">{shortenAddress(contact.address)}</p>
                         </div>
                       </div>
                       <ChevronRight size={16} className={cn(
@@ -439,4 +440,3 @@ export default function TransactionAssistantPage() {
     </div>
   );
 }
-

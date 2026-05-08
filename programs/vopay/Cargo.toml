@@ -1,0 +1,27 @@
+[package]
+name = "vopay"
+version = "0.1.0"
+description = "VoPay guarded execution layer for user-confirmed Solana transactions"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "vopay"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+anchor-spl = "0.29.0"
+# Solana 1.18 allows some newer transitive releases through semver, but the SBF
+# toolchain bundled with Anchor 0.29 cannot parse or compile every latest
+# manifest. These pins keep `anchor build --arch sbf` reproducible.
+blake3 = "=1.5.5"
+indexmap = "=2.11.4"
+proc-macro-crate = "=3.3.0"
+unicode-segmentation = "=1.12.0"

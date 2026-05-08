@@ -1,0 +1,410 @@
+{
+  "version": "0.1.0",
+  "name": "vopay",
+  "instructions": [
+    {
+      "name": "executeTransfer",
+      "accounts": [
+        {
+          "name": "sender",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "is the recipient wallet owner, and its associated token account is",
+            "validated below before the token-program CPI is allowed to run."
+          ]
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "senderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "isSpl",
+          "type": "bool"
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "initializeContactRegistry",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "contactRegistry",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "addContact",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "contactRegistry",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "contact",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "verifySavedContact",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "contactRegistry",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "recipient",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "logTransactionMetadata",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "clock",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transactionLog",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "recipient",
+          "type": "publicKey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8"
+        },
+        {
+          "name": "aiSummary",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ContactRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "publicKey"
+          },
+          {
+            "name": "contacts",
+            "type": {
+              "vec": "publicKey"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransactionLog",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender",
+            "type": "publicKey"
+          },
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "tokenSymbol",
+            "type": "string"
+          },
+          {
+            "name": "riskLevel",
+            "type": "u8"
+          },
+          {
+            "name": "aiSummary",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "name": "TransferExecuted",
+      "fields": [
+        {
+          "name": "sender",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "recipient",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "MetadataLogged",
+      "fields": [
+        {
+          "name": "sender",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "recipient",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8",
+          "index": false
+        },
+        {
+          "name": "aiSummary",
+          "type": "string",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ContactAdded",
+      "fields": [
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "contact",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "totalContacts",
+          "type": "u8",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ContactVerified",
+      "fields": [
+        {
+          "name": "user",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "recipient",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "isTrusted",
+          "type": "bool",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidRecipient",
+      "msg": "Recipient cannot be the default zero public key."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "Transfer amount must be greater than zero."
+    },
+    {
+      "code": 6002,
+      "name": "UnauthorizedSigner",
+      "msg": "The expected user signer did not sign this transaction."
+    },
+    {
+      "code": 6003,
+      "name": "ContactNotFound",
+      "msg": "The recipient was not found in the trusted contacts registry."
+    },
+    {
+      "code": 6004,
+      "name": "TransferFailed",
+      "msg": "The SOL or SPL token transfer CPI failed."
+    },
+    {
+      "code": 6005,
+      "name": "MissingSplAccount",
+      "msg": "An SPL transfer requires token mint, sender ATA, and recipient ATA accounts."
+    },
+    {
+      "code": 6006,
+      "name": "InvalidAssociatedTokenAccount",
+      "msg": "The provided token account is not the expected associated token account."
+    },
+    {
+      "code": 6007,
+      "name": "ContactRegistryFull",
+      "msg": "The contact registry can store at most ten trusted contacts."
+    },
+    {
+      "code": 6008,
+      "name": "TokenSymbolTooLong",
+      "msg": "Token symbol must be 10 UTF-8 bytes or fewer."
+    },
+    {
+      "code": 6009,
+      "name": "AiSummaryTooLong",
+      "msg": "AI summary must be 100 UTF-8 bytes or fewer."
+    }
+  ]
+}

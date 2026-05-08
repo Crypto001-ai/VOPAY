@@ -5,31 +5,49 @@ import {
   AlertCircle, 
   X, 
   Check, 
-  Fingerprint, 
   Wallet,
   Lock,
   Loader2
 } from 'lucide-react';
-import { GlassCard } from '../components/GlassCard';
 import { RiskBadge } from '../components/RiskBadge';
 import { useTransactionStore, useUserStore } from '../context/store';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { 
-  Transaction, 
-  SystemProgram, 
-  PublicKey, 
-  LAMPORTS_PER_SOL 
-} from '@solana/web3.js';
+import { useAnchorWallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey } from '@solana/web3.js';
+import {
+  executeNativeSolTransfer,
+  getRiskLevel,
+  logTransactionMetadataWithRetry,
+  normalizeTokenSymbol,
+  parseSolToLamports,
+} from '../lib/vopayProgram';
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+
+  return 'Transaction rejected or failed';
+}
 
 export default function ConfirmationGatePage() {
   const { currentAnalysis, setAnalysis } = useTransactionStore();
   const { isConnected } = useUserStore();
   const navigate = useNavigate();
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const anchorWallet = useAnchorWallet();
+  const { publicKey, connected } = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +59,7 @@ export default function ConfirmationGatePage() {
   const { recipient, transaction, riskScore, summary } = currentAnalysis;
 
   const handleConfirm = async () => {
-    if (!publicKey || !isConnected) {
+    if (!publicKey || !anchorWallet || !connected || !isConnected) {
       setError('Please connect your wallet first');
       return;
     }
@@ -50,39 +68,65 @@ export default function ConfirmationGatePage() {
     setError(null);
 
     try {
-      // Create a simple transfer transaction for demonstration
-      // In a real app with AI parsing, we'd handle different tokens/programs
+      // A truncated or unresolved address cannot be proven safe on-chain.
+      // Stop before any wallet prompt so the user never signs an ambiguous transfer.
+      if (!recipient.address || recipient.address.includes('...') || recipient.address === 'Unresolved') {
+        throw new Error('Enter a full recipient wallet address before signing.');
+      }
+
       const destAddress = new PublicKey(recipient.address);
-      
-      // Amount parsing - default to 0.001 SOL for safety on devnet if parsing fails
-      const amount = parseFloat(transaction.amount) || 0.001;
-      
-      const tx = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: destAddress,
-          lamports: amount * LAMPORTS_PER_SOL,
-        })
-      );
 
-      const {
-        context: { slot: minContextSlot },
-        value: { blockhash, lastValidBlockHeight },
-      } = await connection.getLatestBlockhashAndContext();
+      // Matches the Rust-side InvalidRecipient guard and prevents sending to the
+      // default system address through a malformed AI parse.
+      if (destAddress.equals(PublicKey.default)) {
+        throw new Error('Recipient address cannot be the default zero address.');
+      }
 
-      const signature = await sendTransaction(tx, connection, { minContextSlot });
+      const tokenSymbol = normalizeTokenSymbol(transaction.token || 'SOL');
+      if (tokenSymbol !== 'SOL') {
+        throw new Error('SPL token transfers need token mint routing in the frontend. Native SOL is wired now.');
+      }
 
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
+      // Convert in base units before the CPI so the signed instruction cannot
+      // drift because of floating point rounding.
+      const lamports = parseSolToLamports(transaction.amount || '0');
+      const riskLevel = getRiskLevel(riskScore);
+
+      const signature = await executeNativeSolTransfer({
+        connection,
+        wallet: anchorWallet,
+        recipient: destAddress,
+        lamports,
+        riskLevel,
       });
 
-      // Signature exists! Success
-      navigate('/success', { state: { signature } });
-    } catch (err: any) {
+      let metadataSignature: string | null = null;
+      try {
+        metadataSignature = await logTransactionMetadataWithRetry({
+          connection,
+          wallet: anchorWallet,
+          recipient: destAddress,
+          amount: lamports,
+          tokenSymbol,
+          riskLevel,
+          aiSummary: summary,
+        });
+      } catch (metadataError) {
+        // The transfer is the critical path. Metadata is best-effort so a
+        // post-settlement analytics log failure never hides a successful send.
+        console.warn('VoPay metadata logging failed after transfer settled:', metadataError);
+      }
+
+      navigate('/success', {
+        state: {
+          signature,
+          metadataSignature,
+          explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+        },
+      });
+    } catch (err: unknown) {
       console.error('Transaction Failed:', err);
-      setError(err.message || 'Transaction rejected or failed');
+      setError(getErrorMessage(err));
       setIsExecuting(false);
     }
   };
@@ -113,7 +157,7 @@ export default function ConfirmationGatePage() {
              </div>
           </div>
           <h2 className="text-4xl font-black italic tracking-tighter text-foreground">
-            {isExecuting ? 'Requesting Signature' : 'Final Confirmation'}
+            {isExecuting ? 'Routing Through VoPay' : 'Final Confirmation'}
           </h2>
           <p className="text-muted text-[10px] font-mono uppercase tracking-[0.4em] font-black">VoPay Secure Intercept Protocol</p>
         </header>
@@ -183,7 +227,7 @@ export default function ConfirmationGatePage() {
              <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
              <div className="text-xs text-red-500/80 italic leading-relaxed font-black">
                 <span className="font-black uppercase tracking-widest mr-2 underline decoration-red-500/30 underline-offset-4">Mandatory Warning:</span>
-                Always verify transactions before signing. VoPay simulates the payload, but standard blockchain risks apply.
+                Always verify transactions before signing. VoPay executes only this wallet-approved request, and standard blockchain risks still apply.
              </div>
           </div>
         </div>
@@ -202,7 +246,7 @@ export default function ConfirmationGatePage() {
             className="flex items-center justify-center gap-3 py-5 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
           >
             {isExecuting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} 
-            {isExecuting ? 'Processing...' : 'Confirm Signing'}
+            {isExecuting ? 'Processing...' : 'Confirm VoPay'}
           </button>
         </div>
 
