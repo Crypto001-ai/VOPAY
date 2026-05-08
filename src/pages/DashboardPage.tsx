@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -27,8 +27,10 @@ import { useState, useEffect } from 'react';
 import { DisplayNameModal } from '../components/DisplayNameModal';
 
 export default function DashboardPage() {
-  const { isConnected, walletAddress, displayName } = useUserStore();
+  const { isConnected, walletAddress, displayName, balance, isBalanceLoading, solanaNetwork } = useUserStore();
   const [showNameModal, setShowNameModal] = useState(false);
+
+  const isDevnet = solanaNetwork === 'devnet';
 
   useEffect(() => {
     if (isConnected && !displayName) {
@@ -55,6 +57,29 @@ export default function DashboardPage() {
     <div className="min-h-screen p-6 md:p-10 pb-40">
       <div className="max-w-7xl mx-auto space-y-10">
         
+        {/* NETWORK WARNING */}
+        <AnimatePresence>
+          {isConnected && !isDevnet && solanaNetwork && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1, marginBottom: 40 }}
+              exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+              className="p-6 rounded-2xl bg-red-500/10 border border-red-500 text-red-500 flex flex-col items-center justify-center gap-4 text-center overflow-hidden"
+            >
+              <ShieldAlert size={40} className="animate-bounce" />
+              <div>
+                <h3 className="text-xl font-black italic tracking-tighter uppercase mb-1">Incompatible Network Detected</h3>
+                <p className="text-xs font-mono font-black uppercase tracking-widest opacity-80">
+                  VoPay is optimized for Devnet. Current: {solanaNetwork.replace('-', ' ')}
+                </p>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] bg-red-500 text-white px-4 py-2 rounded-full">
+                Please switch wallet network to Devnet for testing.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* TOP SECTION: Welcome & Balances */}
         <header className="flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
           <div>
@@ -68,6 +93,14 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 text-xs font-mono text-muted bg-foreground/5 px-3 py-1.5 rounded-lg border border-border">
               <Fingerprint size={12} className="text-solana-purple" />
               {shortenedAddress}
+              {isConnected && (
+                <span className={cn(
+                  "ml-2 text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded",
+                  isDevnet ? "bg-solana-green/10 text-solana-green" : "bg-red-500/10 text-red-500"
+                )}>
+                  {solanaNetwork || 'OFFLINE'}
+                </span>
+              )}
             </div>
           </div>
 
@@ -77,16 +110,29 @@ export default function DashboardPage() {
                 <TrendingUp size={20} />
               </div>
               <p className="text-[10px] uppercase text-muted tracking-widest font-mono mb-2 font-black">SOL Balance</p>
-              <div className="text-2xl font-black italic text-foreground">142.05 <span className="text-xs text-muted">SOL</span></div>
-              <div className="mt-2 text-[10px] text-solana-green font-black">+$12.40 (24h)</div>
+              {isConnected ? (
+                <div className="text-2xl font-black italic text-foreground">
+                  {isBalanceLoading ? (
+                    <span className="inline-block w-20 h-8 bg-foreground/10 animate-pulse rounded-lg" />
+                  ) : (
+                    <>{balance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 }) || '0.00'} <span className="text-xs text-muted">SOL</span></>
+                  )}
+                </div>
+              ) : (
+                <div className="text-2xl font-black italic text-foreground opacity-30">0.00 <span className="text-xs text-muted">SOL</span></div>
+              )}
+              {isConnected && isDevnet && <div className="mt-2 text-[10px] text-solana-green font-black uppercase tracking-widest">Devnet Realms</div>}
+              {!isDevnet && isConnected && <div className="mt-2 text-[10px] text-red-500 font-black uppercase tracking-widest">Network Mismatch</div>}
             </div>
             <div className="p-6 md:w-64 glass-card rounded-2xl border border-solana-green/20 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-30 transition-opacity">
                 <TrendingUp size={20} />
               </div>
               <p className="text-[10px] uppercase text-muted tracking-widest font-mono mb-2 font-black">USDC Balance</p>
-              <div className="text-2xl font-black italic text-foreground">24,902.12 <span className="text-xs text-muted">USDC</span></div>
-              <div className="mt-2 text-[10px] text-solana-green font-black">+$1.00 (Pegged)</div>
+              <div className="text-2xl font-black italic text-foreground opacity-30">
+                {isConnected ? '0.00' : '0.00'} <span className="text-xs text-muted">USDC</span>
+              </div>
+              <div className="mt-2 text-[10px] text-muted font-black uppercase tracking-widest">Mainnet Only</div>
             </div>
           </div>
         </header>

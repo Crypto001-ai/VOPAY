@@ -5,9 +5,15 @@ interface UserState {
   walletAddress: string | null;
   displayName: string | null;
   isVoiceEnabled: boolean;
+  balance: number | null;
+  isBalanceLoading: boolean;
+  solanaNetwork: string | null;
   setConnection: (connected: boolean, address: string | null) => void;
   setDisplayName: (name: string | null) => void;
   setVoiceEnabled: (enabled: boolean) => void;
+  setBalance: (balance: number | null) => void;
+  setBalanceLoading: (loading: boolean) => void;
+  setSolanaNetwork: (network: string | null) => void;
 }
 
 interface TransactionState {
@@ -50,6 +56,9 @@ export const useUserStore = create<UserState>((set) => ({
   walletAddress: null,
   displayName: localStorage.getItem('vopay_display_name'),
   isVoiceEnabled: localStorage.getItem('vopay_voice_enabled') !== 'false',
+  balance: null,
+  isBalanceLoading: false,
+  solanaNetwork: null,
   setConnection: (connected, address) => set({ isConnected: connected, walletAddress: address }),
   setDisplayName: (name) => {
     if (name) {
@@ -63,6 +72,9 @@ export const useUserStore = create<UserState>((set) => ({
     localStorage.setItem('vopay_voice_enabled', String(enabled));
     set({ isVoiceEnabled: enabled });
   },
+  setBalance: (balance) => set({ balance }),
+  setBalanceLoading: (loading) => set({ isBalanceLoading: loading }),
+  setSolanaNetwork: (network) => set({ solanaNetwork: network }),
 }));
 
 export const useThemeStore = create<ThemeState>((set) => ({

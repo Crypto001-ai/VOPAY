@@ -3,6 +3,7 @@ import { Header, MobileBottomNav, Sidebar } from './components/Navigation';
 import Footer from './components/Footer';
 import { WalletContextProvider } from './context/WalletContextProvider';
 import { WalletSync } from './context/WalletSync';
+import { BalanceSynchronizer } from './context/BalanceSynchronizer';
 import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import TransactionAssistantPage from './pages/TransactionAssistantPage';
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <WalletContextProvider>
       <WalletSync />
+      <BalanceSynchronizer />
       <Router>
         <div className="min-h-screen bg-background text-foreground transition-colors relative flex overflow-x-hidden selection:bg-solana-purple/30">
           <Sidebar />
