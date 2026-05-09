@@ -88,7 +88,7 @@ export default function SuccessPage() {
                     <FileText size={20} className="text-solana-green" />
                     Transaction Receipt
                   </h3>
-                  <p className="text-[10px] font-mono text-muted uppercase tracking-widest font-black mt-1 opacity-50">Solana Mainnet-Beta</p>
+                  <p className="text-[10px] font-mono text-muted uppercase tracking-widest font-black mt-1 opacity-50">Solana Devnet</p>
                </div>
                <div className="bg-solana-green/10 text-solana-green px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-solana-green/20">
                   Settled
@@ -138,7 +138,7 @@ export default function SuccessPage() {
                         <Copy size={16} />
                      </button>
                      <a 
-                       href={`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`} 
+                       href={location.state?.explorerUrl || `https://explorer.solana.com/tx/${txSignature}?cluster=devnet`} 
                        target="_blank" 
                        rel="noopener noreferrer"
                        className="p-2.5 bg-foreground/5 border border-border rounded-xl transition-all text-muted hover:text-foreground hover:bg-foreground/10"

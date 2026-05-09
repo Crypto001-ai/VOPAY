@@ -26,9 +26,9 @@ interface Contact {
 }
 
 const SAVED_CONTACTS: Contact[] = [
-  { id: '1', name: 'Victor', address: '7xKX...v3p9' },
-  { id: '2', name: 'Opera Axe', address: '4p9Q...9zT1' },
-  { id: '3', name: 'Clinton', address: 'Ab2x...L0p4' },
+  { id: '1', name: 'Victor', address: '3V2PnZBSegHu6Q8BYzR6bk2kfz96jRAYSFoAP2rwUute' },
+  { id: '2', name: 'Opera Axe', address: '67rg7CFkcXcmGD9nKjRR2EjrhgbcxqR3Exf65xSSazNP' },
+  { id: '3', name: 'Clinton', address: 'Hng37kXuNDJkG44Wpdg6xLmicWk9NuisjGkwzhayKM5n' },
 ];
 
 export default function TransactionAssistantPage() {
@@ -62,6 +62,17 @@ export default function TransactionAssistantPage() {
         if (!response.ok) throw new Error('AI analysis failed');
         const aiResult = await response.json();
         
+        // Resolve contact from name if detected by AI
+        let resolvedContact = selectedContact;
+        if (!resolvedContact && aiResult.recipient) {
+          const matchedContact = SAVED_CONTACTS.find(c => 
+            c.name.toLowerCase() === aiResult.recipient.toLowerCase()
+          );
+          if (matchedContact) {
+            resolvedContact = matchedContact;
+          }
+        }
+
         const riskLevel = aiResult.riskLevel.toLowerCase().includes('high') ? 'high' : 
                           aiResult.riskLevel.toLowerCase().includes('medium') ? 'medium' : 'low';
 
@@ -76,9 +87,9 @@ export default function TransactionAssistantPage() {
           ],
           safePassage: aiResult.explanation,
           recipient: {
-            name: aiResult.recipient || selectedContact?.name || 'External Protocol',
-            address: selectedContact?.address || manualAddress || 'Unresolved',
-            isSaved: !!selectedContact
+            name: resolvedContact?.name || aiResult.recipient || 'External Protocol',
+            address: resolvedContact?.address || aiResult.recipient || manualAddress || 'Unresolved',
+            isSaved: !!resolvedContact
           },
           transaction: {
             amount: aiResult.amount || '0',
@@ -356,7 +367,9 @@ export default function TransactionAssistantPage() {
                         </div>
                         <div>
                           <p className="font-black text-sm tracking-tight italic">{contact.name}</p>
-                          <p className="text-[10px] font-mono font-black opacity-50">{contact.address}</p>
+                          <p className="text-[10px] font-mono font-black opacity-50">
+                            {contact.address.slice(0, 4)}...{contact.address.slice(-4)}
+                          </p>
                         </div>
                       </div>
                       <ChevronRight size={16} className={cn(

@@ -24,8 +24,9 @@ export function Sidebar() {
   const { theme } = useThemeStore();
   
   const navItems = [
-    { icon: Plus, path: '/assistant', label: 'Assistant' },
     { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard' },
+    { icon: History, path: '/history', label: 'History' },
+    { icon: Plus, path: '/assistant', label: 'Assistant' },
     { icon: Settings, path: '/settings', label: 'Settings' },
   ];
 
@@ -280,7 +281,8 @@ export function MobileBottomNav() {
   const navItems = [
     { icon: Home, path: '/', label: 'Home' },
     { icon: LayoutDashboard, path: '/dashboard', label: 'Monitor' },
-    { icon: Plus, path: '/assistant', label: 'VoPay', primary: true },
+    { icon: Plus, path: '/assistant', label: '+', primary: true },
+    { icon: History, path: '/history', label: 'History' },
     { icon: Settings, path: '/settings', label: 'Setup' },
   ];
 
@@ -298,9 +300,15 @@ export function MobileBottomNav() {
             <Link 
               key={item.path}
               to={item.path}
-              className="w-16 h-16 bg-solana-gradient rounded-2xl flex items-center justify-center -translate-y-6 shadow-2xl shadow-solana-purple/30 border-t border-white/20 active:scale-90 transition-transform"
+              className="w-16 h-16 bg-solana-gradient rounded-full flex items-center justify-center -translate-y-6 shadow-2xl shadow-solana-purple/30 border border-white/20 active:scale-90 transition-transform relative"
             >
-              <Icon size={28} className="text-black" />
+              <Icon size={32} className="text-black" />
+              {isActive && (
+                <motion.div 
+                  layoutId="active-dot-primary"
+                  className="absolute -top-3 w-1 h-1 bg-solana-purple rounded-full"
+                />
+              )}
             </Link>
           );
         }
@@ -315,7 +323,7 @@ export function MobileBottomNav() {
             )}
           >
             <Icon size={20} className={cn("transition-transform", isActive && "scale-110")} />
-            <span className="text-[8px] font-black uppercase tracking-tighter">{item.label}</span>
+            <span className="text-[9px] font-black uppercase tracking-tighter">{item.label}</span>
             {isActive && (
               <motion.div 
                 layoutId="active-dot"

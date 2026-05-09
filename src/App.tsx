@@ -12,6 +12,7 @@ import AnalysisPage from './pages/AnalysisPage';
 import ConfirmationGatePage from './pages/ConfirmationGatePage';
 import SuccessPage from './pages/SuccessPage';
 import SettingsPage from './pages/SettingsPage';
+import HistoryPage from './pages/HistoryPage';
 import { motion, AnimatePresence } from 'motion/react';
 import { useThemeStore } from './context/store';
 import { useEffect } from 'react';
@@ -48,6 +49,7 @@ export default function App() {
                 <Route path="/confirm" element={<ConfirmationGatePage />} />
                 <Route path="/success" element={<SuccessPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/history" element={<HistoryPage />} />
               </Routes>
             </main>
 

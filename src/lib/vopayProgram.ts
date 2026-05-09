@@ -1,13 +1,17 @@
-import { AnchorProvider, Program } from '@coral-xyz/anchor';
-import { Connection, PublicKey } from '@solana/web3.js';
-import idl from '../idl/vopay.json';
+import * as anchor from "@coral-xyz/anchor";
+import { Connection, PublicKey } from "@solana/web3.js";
+import type { AnchorWallet } from "@solana/wallet-adapter-react";
+import idl from "../idl/vopay.json";
 
-export const VOPAY_PROGRAM_ID = new PublicKey('2BqHZjo6i4qGLeqU43KFHeW7qwymY9PXc5J5iXzsrsKK');
+export const VOPAY_PROGRAM_ID = new PublicKey(
+  "2BqHZjo6i4qGLeqU43KFHeW7qwymY9PXc5J5iXzsrsKK"
+);
 
-export function getVopayProgram(connection: Connection, wallet: any) {
-  const provider = new AnchorProvider(connection, wallet, {
-    commitment: 'confirmed',
+export function getVopayProgram(connection: Connection, wallet: AnchorWallet) {
+  const provider = new anchor.AnchorProvider(connection, wallet, {
+    commitment: "confirmed",
+    preflightCommitment: "confirmed",
   });
 
-  return new Program(idl as any, provider);
+  return new anchor.Program(idl as any, provider);
 }

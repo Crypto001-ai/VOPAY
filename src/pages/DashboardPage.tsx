@@ -241,7 +241,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-8 space-y-6">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xl font-black tracking-tighter italic text-foreground">Recent Safety Audits</h4>
-              <button className="text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors">Export Logs</button>
+              <Link to="/history" className="text-[10px] font-black uppercase tracking-widest text-muted hover:text-foreground transition-colors">Audit History</Link>
             </div>
 
             <div className="space-y-4">
@@ -286,9 +286,9 @@ export default function DashboardPage() {
               ))}
             </div>
             
-            <button className="w-full py-4 text-[10px] font-mono font-black uppercase tracking-[0.4em] text-muted/30 hover:text-muted transition-all border-t border-border">
-              Load Audit Archives
-            </button>
+            <Link to="/history" className="block w-full py-4 text-[10px] font-mono font-black uppercase tracking-[0.4em] text-muted/30 hover:text-muted transition-all border-t border-border text-center">
+              View Audit Archives
+            </Link>
           </div>
 
           {/* VAULT HEALTH - MOVED SIDEBAR */}

@@ -1,28 +1,28 @@
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import * as anchor from "@coral-xyz/anchor";
 
 /**
  * Safe helper to convert SOL to Lamports using BigInt to avoid floating point issues.
  * @param amount The SOL amount as a string
- * @returns BigInt lamports
+ * @returns anchor.BN lamports
  */
-export function parseSolToLamports(amount: string): bigint {
-  if (!amount || isNaN(Number(amount))) {
-    throw new Error('Invalid amount: Not a number');
+export function parseSolToLamports(amount: string): anchor.BN {
+  const normalized = amount.trim().replace(/,/g, "");
+
+  if (!/^\d+(\.\d{1,9})?$/.test(normalized)) {
+    throw new Error("Enter a valid SOL amount with up to 9 decimal places.");
   }
 
-  const num = Number(amount);
-  if (num <= 0) {
-    throw new Error('Invalid amount: Must be greater than zero');
+  const [wholePart, fractionPart = ""] = normalized.split(".");
+
+  const lamports =
+    BigInt(wholePart) * 1_000_000_000n +
+    BigInt(fractionPart.padEnd(9, "0"));
+
+  if (lamports <= 0n) {
+    throw new Error("Transfer amount must be greater than zero.");
   }
 
-  // Handle precision up to 9 decimals
-  const [integral, fractional = ''] = amount.split('.');
-  const paddedFractional = fractional.padEnd(9, '0').slice(0, 9);
-  
-  const integralBig = BigInt(integral || '0') * BigInt(LAMPORTS_PER_SOL);
-  const fractionalBig = BigInt(paddedFractional);
-  
-  return integralBig + fractionalBig;
+  return new anchor.BN(lamports.toString());
 }
 
 export function getExplorerUrl(signature: string): string {

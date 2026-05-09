@@ -48,7 +48,7 @@ export default function ConfirmationGatePage() {
       // Execute the real VoPay transfer via smart contract
       const result = await executeVopayTransfer(
         connection,
-        wallet,
+        wallet as any, // WalletContextState satisfies AnchorWallet if publicKey is present
         recipient.address,
         transaction.amount,
         riskScore as 'low' | 'medium' | 'high'
@@ -56,6 +56,8 @@ export default function ConfirmationGatePage() {
 
       // Log metadata as fire-and-forget
       logTransactionMetadata({
+        connection,
+        wallet: wallet as any,
         recipient: recipient.address,
         amount: transaction.amount,
         tokenSymbol: 'SOL',

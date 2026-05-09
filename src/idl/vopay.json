@@ -58,6 +58,48 @@
           "type": "u8"
         }
       ]
+    },
+    {
+      "name": "logTransactionMetadata",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "recipient",
+          "type": "publicKey"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "tokenSymbol",
+          "type": "string"
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8"
+        },
+        {
+          "name": "aiSummary",
+          "type": "string"
+        }
+      ]
     }
   ],
   "metadata": {
