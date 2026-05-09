@@ -100,18 +100,25 @@ export default function SuccessPage() {
                <div className="flex justify-between items-center py-5 border-b border-border">
                   <span className="text-[10px] text-muted font-mono uppercase tracking-widest font-black">Amount Paid</span>
                   <span className="text-2xl font-black italic text-foreground underline decoration-solana-green decoration-2 underline-offset-4">
-                    {currentAnalysis?.transaction.amount || '0.00'} {currentAnalysis?.transaction.token || 'SOL'}
+                    {location.state?.amount || currentAnalysis?.transaction.amount || '0.00'} SOL
                   </span>
                </div>
                <div className="flex justify-between items-center py-5 border-b border-border">
                   <span className="text-[10px] text-muted font-mono uppercase tracking-widest font-black">Recipient</span>
                   <span className="text-sm font-black text-foreground italic">
-                    {currentAnalysis?.recipient.name || 'External Wallet'}
+                    {currentAnalysis?.recipient.name || location.state?.recipient || 'External Wallet'}
                   </span>
                </div>
                <div className="flex justify-between items-center py-5">
-                  <span className="text-[10px] text-muted font-mono uppercase tracking-widest font-black">Network Fee</span>
-                  <span className="text-[11px] font-mono font-black text-solana-green">0.000005 SOL</span>
+                  <span className="text-[10px] text-muted font-mono uppercase tracking-widest font-black">Risk Clearance</span>
+                  <span className={cn(
+                    "text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
+                    (location.state?.riskLevel === 1 || currentAnalysis?.riskScore === 'low') ? "bg-solana-green/10 text-solana-green" :
+                    (location.state?.riskLevel === 2 || currentAnalysis?.riskScore === 'medium') ? "bg-orange-500/10 text-orange-500" :
+                    "bg-red-500/10 text-red-500"
+                  )}>
+                    {location.state?.riskLevel === 1 ? 'LOW RISK' : location.state?.riskLevel === 2 ? 'MEDIUM RISK' : 'HIGH RISK'}
+                  </span>
                </div>
             </div>
 

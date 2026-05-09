@@ -7,8 +7,6 @@ import {
   Smartphone,
   Layers, 
   Globe, 
-  Github, 
-  Twitter, 
   CheckCircle2, 
   AlertTriangle, 
   ArrowRight,
@@ -47,6 +45,17 @@ export default function LandingPage() {
 
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-solana-purple/20 bg-solana-purple/5">
+              <div className="w-1.5 h-1.5 rounded-full bg-solana-green animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-solana-purple">Built on Solana Devnet</span>
+            </div>
+          </motion.div>
+
+          <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
@@ -73,23 +82,34 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter mb-8 italic px-4 leading-[0.9]"
-          >
-            <span className="block overflow-visible py-2">Understand</span>
-            <span className="text-gradient block overflow-visible py-2">Before You Sign</span>
-          </motion.h1>
+          <div className="mb-8">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter italic px-4 leading-[0.9] mb-4"
+            >
+              <span className="block overflow-visible py-1">VoiceGuard for</span>
+              <span className="text-gradient block overflow-visible py-1">Solana</span>
+            </motion.h1>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-2xl md:text-4xl font-black italic tracking-tight text-muted"
+            >
+              Understand Before You Sign.
+            </motion.h2>
+          </div>
 
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-muted text-lg md:text-xl max-w-2xl mb-12 font-medium tracking-tight px-6"
+            className="text-muted/80 text-base md:text-lg max-w-2xl mb-12 font-medium tracking-tight px-6 leading-relaxed"
           >
-            AI-powered transaction safety for Solana users. <br className="hidden md:block" />
-            VoPay bridges the gap between raw data and human understanding.
+            AI-powered voice transaction protection that explains risks <br className="hidden md:block" />
+            before anything moves on-chain.
           </motion.p>
 
           <motion.div
@@ -98,17 +118,65 @@ export default function LandingPage() {
             transition={{ delay: 0.4 }}
             className="flex flex-wrap items-center justify-center gap-6"
           >
-            <Link to="/assistant">
-              <button className="px-12 py-6 rounded-2xl bg-gradient-to-r from-solana-purple to-solana-green text-black font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-solana-green/20 hover:scale-105 active:scale-95 transition-all">
-                Launch VoPay
+            <Link to="/connect">
+              <button className="px-10 py-5 rounded-2xl bg-solana-gradient text-black font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-solana-purple/20 hover:scale-[1.03] active:scale-95 transition-all">
+                Protect My Wallet
               </button>
             </Link>
-            <Link to="/dashboard">
-              <button className="px-12 py-6 rounded-2xl bg-white/5 border border-white/10 text-white font-bold uppercase tracking-[0.2em] text-xs hover:bg-white/10 transition-all">
-                Safety Overview
-              </button>
-            </Link>
+            <button 
+              onClick={() => alert("Demo video coming soon")}
+              className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-white/10 hover:scale-[1.03] active:scale-95 transition-all"
+            >
+              Watch Demo
+            </button>
           </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-16 flex flex-wrap items-center justify-center gap-4 text-muted/40 font-black uppercase tracking-[0.3em] text-[8px]"
+          >
+            <div className="px-4 py-2 rounded-full border border-border bg-foreground/3 flex items-center gap-2 group hover:border-solana-green/30 hover:bg-solana-green/5 transition-all transition-all shadow-[0_0_15px_rgba(20,241,149,0.05)] hover:shadow-solana-green/10">
+              <div className="w-1 h-1 rounded-full bg-solana-green" />
+              <span>Built on Solana</span>
+            </div>
+            <div className="px-4 py-2 rounded-full border border-border bg-foreground/3 flex items-center gap-2 group hover:border-solana-purple/30 hover:bg-solana-purple/5 transition-all shadow-[0_0_15px_rgba(153,69,255,0.05)] hover:shadow-solana-purple/10">
+              <div className="w-1 h-1 rounded-full bg-solana-purple" />
+              <span>Powered by ElevenLabs</span>
+            </div>
+            <div className="px-4 py-2 rounded-full border border-border bg-foreground/3 flex items-center gap-2 group hover:border-white/20 hover:bg-white/5 transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-white/10">
+              <div className="w-1 h-1 rounded-full bg-white" />
+              <span>Infrastructure on Vercel</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* IMPACT / TRUST BAR */}
+      <section className="py-12 bg-black border-y border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-solana-gradient opacity-[0.03]" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="flex flex-col items-center text-center">
+              <span className="text-2xl md:text-3xl font-black italic tracking-tighter text-red-500 mb-2">$530M+</span>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-tight">lost to scams <br/>and phishing</p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <span className="text-2xl md:text-3xl font-black italic tracking-tighter text-solana-purple mb-2">1.5B+</span>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-tight">failed transactions <br/>during congestion</p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <span className="text-2xl md:text-3xl font-black italic tracking-tighter text-solana-green mb-2">90%</span>
+              <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-tight">Users sign transactions <br/>they do not understand</p>
+            </div>
+          </div>
+          <div className="mt-12 flex flex-col items-center text-center">
+            <div className="h-px w-24 bg-border/40 mb-6" />
+            <p className="text-xs md:text-sm font-black italic uppercase tracking-tighter text-foreground max-w-sm">
+              VoPay explains every transaction <span className="text-solana-green">before</span> you approve it.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -284,7 +352,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <Link to="/assistant">
+              <Link to="/connect">
                 <button className="px-16 py-7 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:scale-105 active:scale-95 transition-all">
                   Get Started Now
                 </button>

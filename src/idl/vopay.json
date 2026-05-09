@@ -1,0 +1,66 @@
+{
+  "version": "0.1.0",
+  "name": "vopay",
+  "instructions": [
+    {
+      "name": "executeTransfer",
+      "accounts": [
+        {
+          "name": "sender",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMint",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "senderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "isToken",
+          "type": "bool"
+        },
+        {
+          "name": "riskLevel",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "address": "2BqHZjo6i4qGLeqU43KFHeW7qwymY9PXc5J5iXzsrsKK"
+  }
+}

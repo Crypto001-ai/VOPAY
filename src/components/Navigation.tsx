@@ -26,7 +26,6 @@ export function Sidebar() {
   const navItems = [
     { icon: Plus, path: '/assistant', label: 'Assistant' },
     { icon: LayoutDashboard, path: '/dashboard', label: 'Dashboard' },
-    { icon: History, path: '/history', label: 'History' },
     { icon: Settings, path: '/settings', label: 'Settings' },
   ];
 
@@ -282,7 +281,6 @@ export function MobileBottomNav() {
     { icon: Home, path: '/', label: 'Home' },
     { icon: LayoutDashboard, path: '/dashboard', label: 'Monitor' },
     { icon: Plus, path: '/assistant', label: 'VoPay', primary: true },
-    { icon: History, path: '/history', label: 'History' },
     { icon: Settings, path: '/settings', label: 'Setup' },
   ];
 

@@ -17,19 +17,14 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { 
-  Transaction, 
-  SystemProgram, 
-  PublicKey, 
-  LAMPORTS_PER_SOL 
-} from '@solana/web3.js';
+import { executeVopayTransfer, logTransactionMetadata } from '../lib/executeTransfer';
 
 export default function ConfirmationGatePage() {
   const { currentAnalysis, setAnalysis } = useTransactionStore();
   const { isConnected } = useUserStore();
   const navigate = useNavigate();
   const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const wallet = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +36,7 @@ export default function ConfirmationGatePage() {
   const { recipient, transaction, riskScore, summary } = currentAnalysis;
 
   const handleConfirm = async () => {
-    if (!publicKey || !isConnected) {
+    if (!wallet.publicKey || !isConnected) {
       setError('Please connect your wallet first');
       return;
     }
@@ -50,36 +45,33 @@ export default function ConfirmationGatePage() {
     setError(null);
 
     try {
-      // Create a simple transfer transaction for demonstration
-      // In a real app with AI parsing, we'd handle different tokens/programs
-      const destAddress = new PublicKey(recipient.address);
-      
-      // Amount parsing - default to 0.001 SOL for safety on devnet if parsing fails
-      const amount = parseFloat(transaction.amount) || 0.001;
-      
-      const tx = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: destAddress,
-          lamports: amount * LAMPORTS_PER_SOL,
-        })
+      // Execute the real VoPay transfer via smart contract
+      const result = await executeVopayTransfer(
+        connection,
+        wallet,
+        recipient.address,
+        transaction.amount,
+        riskScore as 'low' | 'medium' | 'high'
       );
 
-      const {
-        context: { slot: minContextSlot },
-        value: { blockhash, lastValidBlockHeight },
-      } = await connection.getLatestBlockhashAndContext();
-
-      const signature = await sendTransaction(tx, connection, { minContextSlot });
-
-      await connection.confirmTransaction({
-        blockhash,
-        lastValidBlockHeight,
-        signature,
+      // Log metadata as fire-and-forget
+      logTransactionMetadata({
+        recipient: recipient.address,
+        amount: transaction.amount,
+        tokenSymbol: 'SOL',
+        riskLevel: result.riskLevel,
+        aiSummary: summary
       });
 
       // Signature exists! Success
-      navigate('/success', { state: { signature } });
+      navigate('/success', { 
+        state: { 
+          signature: result.signature,
+          amount: result.amount,
+          recipient: result.recipient,
+          riskLevel: result.riskLevel
+        } 
+      });
     } catch (err: any) {
       console.error('Transaction Failed:', err);
       setError(err.message || 'Transaction rejected or failed');
