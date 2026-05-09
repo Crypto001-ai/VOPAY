@@ -28,8 +28,17 @@ export default function SuccessPage() {
   const shortHash = `${txSignature.slice(0, 12)}...${txSignature.slice(-12)}`;
 
   useEffect(() => {
-    // Voice confirmation placeholder
-    console.log("Play Voice: 'Transaction completed successfully.'");
+    // Voice confirmation - ElevenLabs style
+    const playVoice = () => {
+      const msg = new SpeechSynthesisUtterance();
+      msg.text = "Transaction completed successfully. Funds have been sent.";
+      msg.rate = 0.9;
+      msg.pitch = 1.1;
+      window.speechSynthesis.speak(msg);
+    };
+    
+    const timer = setTimeout(playVoice, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleCopy = () => {

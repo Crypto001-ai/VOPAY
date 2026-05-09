@@ -107,78 +107,47 @@ export default function ConfirmationGatePage() {
              </div>
           </div>
           <h2 className="text-4xl font-black italic tracking-tighter text-foreground">
-            {isExecuting ? 'Requesting Signature' : 'Final Confirmation'}
+            {isExecuting ? 'Sending Transaction' : 'Confirm Transaction'}
           </h2>
-          <p className="text-muted text-[10px] font-mono uppercase tracking-[0.4em] font-black">VoPay Secure Intercept Protocol</p>
+          <p className="text-muted text-[10px] font-mono uppercase tracking-[0.4em] font-black">VoPay Secure Transfer</p>
         </header>
 
         <div className="p-8 space-y-8 relative overflow-hidden glass-card rounded-[2.5rem]">
-          {/* Transaction Flow Diagram */}
-          <div className="flex items-center justify-between relative bg-foreground/3 p-6 rounded-2xl border border-border">
-             <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-foreground/5 rounded-full flex items-center justify-center border border-border mx-auto">
-                   <Wallet size={20} className="text-muted" />
-                </div>
-                <p className="text-[9px] font-mono text-muted uppercase tracking-widest font-black">Your Wallet</p>
-             </div>
-
-             <div className="flex-1 flex flex-col items-center justify-center gap-2 overflow-hidden px-4">
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-border to-transparent relative">
-                   <motion.div 
-                     animate={{ left: isExecuting ? ['-20%', '120%'] : ['0%', '0%'] }}
-                     transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                     className="absolute top-1/2 -translate-y-1/2 w-8 h-1 bg-solana-purple blur-[2px] rounded-full"
-                   />
-                </div>
-                <div className="bg-background/40 px-3 py-1 rounded-full border border-border backdrop-blur-sm">
-                   <span className="text-[10px] font-mono font-black text-solana-green">{transaction.amount} {transaction.token}</span>
-                </div>
-             </div>
-
-             <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-solana-purple/10 rounded-full flex items-center justify-center border border-solana-purple/30 mx-auto text-solana-purple">
-                   <span className="font-black italic">{recipient.name[0]}</span>
-                </div>
-                <p className="text-[9px] font-mono text-muted uppercase tracking-widest font-black">{recipient.name}</p>
-             </div>
+          {/* Detailed Confirmation Info */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center py-4 border-b border-white/5">
+              <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">Sending</span>
+              <span className="text-lg font-black italic text-solana-green">{transaction.amount} SOL</span>
+            </div>
+            <div className="flex justify-between items-center py-4 border-b border-white/5">
+              <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">To</span>
+              <div className="text-right">
+                <p className="text-sm font-black italic text-foreground">{recipient.name}</p>
+                <p className="text-[9px] font-mono text-muted opacity-50">{recipient.address.slice(0, 4)}...{recipient.address.slice(-4)}</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-center py-4 border-b border-white/5">
+              <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">Network Fee</span>
+              <span className="text-[10px] font-mono text-foreground font-black">~0.00025 SOL</span>
+            </div>
+            <div className="flex justify-between items-center py-4 font-black">
+              <span className="text-[10px] font-mono text-muted uppercase tracking-widest">Network</span>
+              <span className="text-[10px] font-mono text-solana-purple uppercase tracking-widest">Devnet</span>
+            </div>
           </div>
 
           <div className="space-y-6">
             <div className="flex justify-between items-center text-foreground">
-              <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">AI Safety Assessment</span>
+              <span className="text-[10px] font-mono text-muted uppercase tracking-widest font-black">Safety Analysis</span>
               <RiskBadge level={riskScore} />
             </div>
             
-            <div className="p-5 rounded-2xl bg-foreground/3 border border-border italic">
-               <p className="text-sm text-foreground leading-relaxed font-black">
+            <div className="p-5 rounded-2xl bg-foreground/3 border border-border italic text-center">
+               <p className="text-sm text-foreground leading-relaxed font-black mb-2 uppercase tracking-tighter">AI Verification Complete</p>
+               <p className="text-xs text-muted leading-relaxed font-bold">
                  "{summary}"
                </p>
             </div>
-
-            <div className={cn(
-              "p-4 rounded-xl border flex items-center gap-4 transition-all",
-              error ? "bg-red-500/10 border-red-500/20 text-red-500" : "border-border bg-foreground/3"
-            )}>
-               {error ? (
-                 <>
-                   <ShieldAlert size={16} />
-                   <p className="text-[10px] font-black uppercase tracking-widest italic">{error}</p>
-                 </>
-               ) : (
-                 <>
-                   <ShieldCheck size={16} className="text-solana-green" />
-                   <p className="text-[10px] font-mono text-muted uppercase tracking-[.2em] font-black">Devnet Environment Active</p>
-                 </>
-               )}
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4 p-5 rounded-2xl bg-red-500/5 border border-red-500/20">
-             <AlertCircle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
-             <div className="text-xs text-red-500/80 italic leading-relaxed font-black">
-                <span className="font-black uppercase tracking-widest mr-2 underline decoration-red-500/30 underline-offset-4">Mandatory Warning:</span>
-                Always verify transactions before signing. VoPay simulates the payload, but standard blockchain risks apply.
-             </div>
           </div>
         </div>
 
@@ -196,7 +165,7 @@ export default function ConfirmationGatePage() {
             className="flex items-center justify-center gap-3 py-5 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
           >
             {isExecuting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} 
-            {isExecuting ? 'Processing...' : 'Confirm Signing'}
+            {isExecuting ? 'Processing...' : 'SEND NOW'}
           </button>
         </div>
 

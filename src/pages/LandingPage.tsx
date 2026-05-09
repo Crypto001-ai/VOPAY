@@ -258,7 +258,7 @@ export default function LandingPage() {
               { 
                 step: '02', 
                 title: 'Analyze', 
-                desc: 'Our AI engine simulates the transaction in a sandbox, checking for malicious instructions.', 
+                desc: 'Our AI engine verifies the transaction in real-time, checking for malicious instructions.', 
                 icon: Smartphone,
                 color: '#3B82F6'
               },

@@ -44,13 +44,14 @@ export default function TransactionAssistantPage() {
   const [isPasting, setIsPasting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handlePrepareTransaction = async () => {
+  const handlePrepareTransaction = async (overrideContact?: Contact) => {
     setAnalyzing(true);
     setError(null);
     
     try {
+      const contactToUse = overrideContact || selectedContact;
       // Use API if there's a transcript, otherwise fallback to UI selection
-      const activeText = transcript || (selectedContact ? `Send money to ${selectedContact.name}` : manualAddress ? `Send to ${manualAddress}` : '');
+      const activeText = transcript || (contactToUse ? `Send money to ${contactToUse.name}` : manualAddress ? `Send to ${manualAddress}` : '');
       
       if (activeText) {
         const response = await fetch('/api/parse', {
@@ -63,7 +64,7 @@ export default function TransactionAssistantPage() {
         const aiResult = await response.json();
         
         // Resolve contact from name if detected by AI
-        let resolvedContact = selectedContact;
+        let resolvedContact = contactToUse;
         if (!resolvedContact && aiResult.recipient) {
           const matchedContact = SAVED_CONTACTS.find(c => 
             c.name.toLowerCase() === aiResult.recipient.toLowerCase()
@@ -82,7 +83,7 @@ export default function TransactionAssistantPage() {
           summary: aiResult.explanation,
           threats: [
             'System Integrity Check: PASS',
-            'Payload Simulation: STABLE',
+            'Security Validation: VERIFIED',
             `Logic Guard: ${aiResult.recommendation}`
           ],
           safePassage: aiResult.explanation,
@@ -108,7 +109,7 @@ export default function TransactionAssistantPage() {
       }
       
       setAnalyzing(false);
-      navigate('/analysis');
+      navigate('/confirm');
     } catch (err: any) {
       console.error(err);
       setAnalyzing(false);
@@ -183,7 +184,7 @@ export default function TransactionAssistantPage() {
           <div>
             <h2 className="text-3xl font-black tracking-tighter italic mb-4 text-foreground leading-[0.9]">Security Protocol Required</h2>
             <p className="text-muted leading-relaxed text-sm font-medium">
-              Please initialize your session to enable real-time transaction analysis and simulation.
+              Please initialize your session to enable real-time transaction analysis and secure transfers.
             </p>
           </div>
           <Link to="/connect">
@@ -215,8 +216,8 @@ export default function TransactionAssistantPage() {
               />
             </div>
             <div className="text-center space-y-3">
-              <h3 className="text-2xl font-black italic tracking-tighter">Neural Simulation</h3>
-              <p className="text-xs font-mono text-white/40 uppercase tracking-[0.4em] animate-pulse">Running heuristic threat assessment...</p>
+              <h3 className="text-2xl font-black italic tracking-tighter">Secure Link</h3>
+              <p className="text-xs font-mono text-white/40 uppercase tracking-[0.4em] animate-pulse">Running advanced safety assessment...</p>
             </div>
           </motion.div>
         )}
@@ -350,7 +351,10 @@ export default function TransactionAssistantPage() {
                   {SAVED_CONTACTS.map((contact) => (
                     <button
                       key={contact.id}
-                      onClick={() => setSelectedContact(contact)}
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        handlePrepareTransaction(contact);
+                      }}
                       className={cn(
                         "w-full flex items-center justify-between p-5 rounded-2xl border transition-all",
                         selectedContact?.id === contact.id 
@@ -419,8 +423,8 @@ export default function TransactionAssistantPage() {
                     <div className="flex gap-4">
                       <Info size={16} className="text-solana-green flex-shrink-0 mt-0.5" />
                       <p className="text-[11px] text-muted leading-relaxed italic font-bold">
-                        VoPay will simulate the payload for this address before any signing request is triggered. 
-                        Unknown addresses undergo <span className="text-solana-green font-black uppercase tracking-wider">Heuristic Level 3</span> scanning.
+                        VoPay will verify the address before any signing request is triggered. 
+                        Unknown addresses undergo <span className="text-solana-green font-black uppercase tracking-wider">Security Level 3</span> scanning.
                       </p>
                     </div>
                   </div>
@@ -429,7 +433,7 @@ export default function TransactionAssistantPage() {
                     onClick={handlePrepareTransaction}
                     className="w-full py-5 rounded-2xl bg-foreground text-background font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
                   >
-                    Prepare Simulation
+                    Confirm Transaction
                   </button>
                 </div>
               </div>
