@@ -14,9 +14,6 @@ export interface TransferResult {
   aiSummary?: string;
 }
 
-/**
- * Log transaction metadata for transparency on-chain.
- */
 export async function logTransactionMetadata(params: {
   connection: Connection;
   wallet: AnchorWallet;
@@ -31,8 +28,6 @@ export async function logTransactionMetadata(params: {
     const recipientPubkey = new PublicKey(params.recipient);
     const lamports = parseSolToLamports(params.amount);
     
-    // Create PDA for metadata
-    // [Buffer.from("txlog"), signerPublicKey.toBuffer(), timestamp.to_le_bytes()]
     const now = Math.floor(Date.now() / 1000);
     const timestampBuffer = Buffer.alloc(8);
     timestampBuffer.writeBigInt64LE(BigInt(now));
@@ -46,18 +41,13 @@ export async function logTransactionMetadata(params: {
       program.programId
     );
 
-    console.log('[VoPay Metadata Log] Attempting on-chain log...', {
-      pda: metadataPda.toBase58(),
-      timestamp: now
-    });
-
     await program.methods
       .logTransactionMetadata(
         recipientPubkey,
         lamports,
-        params.tokenSymbol.slice(0, 10), // max 10 bytes
+        params.tokenSymbol.slice(0, 10),
         params.riskLevel,
-        params.aiSummary.slice(0, 100) // max 100 bytes
+        params.aiSummary.slice(0, 100)
       )
       .accounts({
         signer: params.wallet.publicKey,
@@ -67,10 +57,9 @@ export async function logTransactionMetadata(params: {
       } as any)
       .rpc();
 
-    console.log('[VoPay Metadata Log] Successfully logged metadata on-chain');
   } catch (error) {
-    console.error('[VoPay Metadata Log] Failed to log metadata:', error);
-    // Requirements: DO NOT fail the transaction UI if logging fails.
+    console.error('[VoPay Metadata Log] Failed:', error);
+    // Never fail the main transaction if logging fails
   }
 }
 
@@ -87,7 +76,6 @@ export async function executeVopayTransfer(
   const recipient = new PublicKey(recipientAddress);
   const lamports = parseSolToLamports(amountSol);
 
-  // Map risk level: low → 1, medium → 2, high → 3
   const riskLevel = riskScore === "high" ? 3 : riskScore === "medium" ? 2 : 1;
 
   try {
@@ -96,9 +84,6 @@ export async function executeVopayTransfer(
       .accounts({
         sender: wallet.publicKey,
         recipient: recipient,
-        tokenMint: null,
-        senderTokenAccount: null,
-        recipientTokenAccount: null,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       } as any)
