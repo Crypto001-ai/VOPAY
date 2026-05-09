@@ -13,5 +13,5 @@ export function getVopayProgram(connection: Connection, wallet: AnchorWallet) {
     preflightCommitment: "confirmed",
   });
 
-  return new anchor.Program(idl as any, provider);
+  return new (anchor.Program as any)(idl, VOPAY_PROGRAM_ID, provider);
 }

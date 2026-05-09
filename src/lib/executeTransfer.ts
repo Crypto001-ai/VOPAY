@@ -61,7 +61,8 @@ export async function logTransactionMetadata(params: {
       )
       .accounts({
         signer: params.wallet.publicKey,
-        metadata: metadataPda,
+        clock: new PublicKey("SysvarC1ock11111111111111111111111111111111"),
+        transactionLog: metadataPda,
         systemProgram: SystemProgram.programId,
       } as any)
       .rpc();
