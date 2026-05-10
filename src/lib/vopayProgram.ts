@@ -18,19 +18,19 @@ const VOPAY_IDL = {
   metadata: { name: "workspace", version: "0.1.0", spec: "0.1.0" },
   instructions: [
     {
-      name: "execute_vopay_transfer",
+      name: "executeVopayTransfer",
       discriminator: [36, 65, 160, 18, 140, 170, 103, 197],
       accounts: [
         { name: "config", writable: true },
-        { name: "transaction_log", writable: true, signer: false },
+        { name: "transactionLog", writable: true, signer: false },
         { name: "sender", writable: true, signer: true },
         { name: "recipient", writable: true },
         { name: "treasury", writable: true },
-        { name: "system_program" },
+        { name: "systemProgram" },
       ],
       args: [
-        { name: "amount_lamports", type: "u64" },
-        { name: "risk_score", type: "u8" },
+        { name: "amountLamports", type: "u64" },
+        { name: "riskScore", type: "u8" },
       ],
     },
   ],
@@ -49,14 +49,14 @@ const VOPAY_IDL = {
           { name: "bump", type: "u8" },
           { name: "authority", type: "pubkey" },
           { name: "treasury", type: "pubkey" },
-          { name: "fee_bps", type: "u16" },
-          { name: "max_transfer_lamports", type: "u64" },
-          { name: "high_risk_threshold", type: "u8" },
-          { name: "is_active", type: "bool" },
-          { name: "is_paused", type: "bool" },
-          { name: "total_transactions", type: "u64" },
-          { name: "total_volume_lamports", type: "u64" },
-          { name: "total_blocked", type: "u64" },
+          { name: "feeBps", type: "u16" },
+          { name: "maxTransferLamports", type: "u64" },
+          { name: "highRiskThreshold", type: "u8" },
+          { name: "isActive", type: "bool" },
+          { name: "isPaused", type: "bool" },
+          { name: "totalTransactions", type: "u64" },
+          { name: "totalVolumeLamports", type: "u64" },
+          { name: "totalBlocked", type: "u64" },
           { name: "version", type: "u8" },
         ],
       },
@@ -112,7 +112,7 @@ export async function executeVopayTransfer(
   const txLogPDA = deriveTxLogPDA(sender, txCount);
 
   const signature = await program.methods
-    .execute_vopay_transfer(amountLamports, riskScore)
+    .executeVopayTransfer(amountLamports, riskScore)
     .accounts({
       config: CONFIG_ACCOUNT,
       transactionLog: txLogPDA,
