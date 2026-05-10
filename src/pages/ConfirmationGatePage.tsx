@@ -16,15 +16,16 @@ import { useTransactionStore, useUserStore } from '../context/store';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { cn } from '../lib/utils';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { executeVopayTransfer, logTransactionMetadata } from '../lib/executeTransfer';
+import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
+import { AnchorProvider } from '@coral-xyz/anchor';
+import { executeVopayTransfer, resolveContact } from '../lib/vopayProgram';
 
 export default function ConfirmationGatePage() {
   const { currentAnalysis, setAnalysis } = useTransactionStore();
   const { isConnected } = useUserStore();
   const navigate = useNavigate();
+  const wallet = useAnchorWallet();
   const { connection } = useConnection();
-  const wallet = useWallet();
   const [isExecuting, setIsExecuting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +37,17 @@ export default function ConfirmationGatePage() {
   const { recipient, transaction, riskScore, summary } = currentAnalysis;
 
   const handleConfirm = async () => {
-    if (!wallet.publicKey || !isConnected) {
+    if (!wallet) {
       setError('Please connect your wallet first');
+      return;
+    }
+
+    const address = resolveContact(
+      recipient.name || recipient.address
+    );
+    
+    if (!address) {
+      setError('Unknown recipient');
       return;
     }
 
@@ -45,38 +55,31 @@ export default function ConfirmationGatePage() {
     setError(null);
 
     try {
-      // Execute the real VoPay transfer via smart contract
-      const result = await executeVopayTransfer(
+      const provider = new AnchorProvider(
         connection,
-        wallet as any, // WalletContextState satisfies AnchorWallet if publicKey is present
-        recipient.address,
-        transaction.amount,
-        riskScore as 'low' | 'medium' | 'high'
+        wallet,
+        { commitment: "confirmed" }
       );
 
-      // Log metadata as fire-and-forget
-      logTransactionMetadata({
-        connection,
-        wallet: wallet as any,
-        recipient: recipient.address,
-        amount: transaction.amount,
-        tokenSymbol: 'SOL',
-        riskLevel: result.riskLevel,
-        aiSummary: summary
+      const txResult = await executeVopayTransfer(
+        provider,
+        address,
+        parseFloat(transaction.amount),
+        1
+      );
+
+      navigate('/success', {
+        state: {
+          signature: txResult.signature,
+          explorerUrl: txResult.explorerUrl,
+          amount: txResult.amountSol,
+          recipient: txResult.recipient
+        }
       });
 
-      // Signature exists! Success
-      navigate('/success', { 
-        state: { 
-          signature: result.signature,
-          amount: result.amount,
-          recipient: result.recipient,
-          riskLevel: result.riskLevel
-        } 
-      });
     } catch (err: any) {
       console.error('Transaction Failed:', err);
-      setError(err.message || 'Transaction rejected or failed');
+      setError(err.message || 'Transaction failed');
       setIsExecuting(false);
     }
   };
